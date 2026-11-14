@@ -254,7 +254,7 @@ export function BuyerMarketDemandPage() {
 
   return (
     <div className="portal-stack">
-      <div className="portal-page-heading" style={{ marginBottom: 12 }}>
+      {/* <div className="portal-page-heading" style={{ marginBottom: 12 }}>
         <div>
           <p className="portal-overline">Fresh Produce Guide</p>
           <h1 style={{ margin: "2px 0 6px" }}>In-Season & High-Demand Produce</h1>
@@ -262,7 +262,7 @@ export function BuyerMarketDemandPage() {
             Browse produce currently arriving from local Kerala harvests with peak freshness and direct farmgate prices.
           </p>
         </div>
-      </div>
+      </div> */}
 
       <div className="portal-demand-toolbar">
         <div className="portal-demand-pills">

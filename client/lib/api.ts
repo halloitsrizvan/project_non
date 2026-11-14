@@ -31,9 +31,10 @@ export type Order = {
   totalAmount?: string | number;
   total?: string | number;
   deliveryAddress?: string;
+  notes?: string;
   createdAt?: string;
-  buyer?: { name?: string };
-  farmer?: { name?: string };
+  buyer?: { id?: string; name?: string; phone?: string; email?: string; businessName?: string };
+  farmer?: { id?: string; name?: string; phone?: string; email?: string; location?: string };
   items?: Array<{ id?: string; quantity: string | number; productName?: string; unit?: string; unitPrice?: string | number; productId?: string }>;
 };
 

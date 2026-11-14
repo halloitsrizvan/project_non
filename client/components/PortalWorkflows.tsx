@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ArrowRight, Heart, Package, Trash2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Heart, Package, Trash2, MessageCircle, Phone } from "lucide-react";
 import { useState } from "react";
 import { api, uploadProductImage, type Order, type Product, type ProductInput } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
@@ -220,5 +220,169 @@ export function OrderList({ role }: { role: "FARMER" | "BUYER" }) {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["orders"] }); setMessage("Order updated."); },
     onError: (failure: Error) => setMessage(failure.message),
   });
-  return <div className="portal-stack">{message && <p className="portal-notice" role="status">{message}</p>}<ViewState loading={orders.isPending} error={orders.error} empty={orders.data?.length ? undefined : role === "FARMER" ? "Buyer orders will appear here." : "Your orders will appear here after you purchase products."} retry={() => orders.refetch()}>{orders.data?.map((order) => <article className="portal-order-card" key={order.id}><div className="portal-order-head"><div><span className="portal-overline">Order #{order.id.slice(0, 8)}</span><h2>{order.items?.map((item) => item.productName || item.productId).join(", ") || "Order details"}</h2></div><span className={`portal-status status-${order.status.toLowerCase()}`}>{order.status.toLowerCase()}</span></div><div className="portal-order-meta"><span>{role === "FARMER" ? `Buyer: ${order.buyer?.name || "Details unavailable"}` : `Farmer: ${order.farmer?.name || "Details unavailable"}`}</span><span>{order.createdAt ? new Date(order.createdAt).toLocaleDateString("en-IN") : "Date unavailable"}</span><span>{money(order.totalAmount ?? order.total)}</span></div>{order.items?.length ? <div className="portal-order-items">{order.items.map((item, index) => <p key={item.id ?? index}>{item.quantity} {item.unit ?? "units"} · {item.productName ?? item.productId ?? "Product"}</p>)}</div> : null}<div className="portal-card-actions">{role === "FARMER" && order.status === "PENDING" && <><button disabled={update.isPending} onClick={() => update.mutate({ id: order.id, action: "CONFIRMED" })}>Accept</button><button disabled={update.isPending} onClick={() => { if (window.confirm("Reject this order?")) update.mutate({ id: order.id, action: "REJECTED" }); }}>Reject</button></>}{role === "FARMER" && order.status === "CONFIRMED" && <button disabled={update.isPending} onClick={() => update.mutate({ id: order.id, action: "COMPLETED" })}>Mark completed</button>}{role === "BUYER" && order.status === "PENDING" && <button disabled={update.isPending} onClick={() => { if (window.confirm("Cancel this order?")) update.mutate({ id: order.id, action: "cancel" }); }}>Cancel order</button>}</div></article>)}</ViewState></div>;
+
+  return (
+    <div className="portal-stack">
+      {message && <p className="portal-notice" role="status">{message}</p>}
+      <ViewState
+        loading={orders.isPending}
+        error={orders.error}
+        empty={orders.data?.length ? undefined : role === "FARMER" ? "Buyer orders will appear here." : "Your orders will appear here after you purchase products."}
+        retry={() => orders.refetch()}
+      >
+        {orders.data?.map((order) => {
+          const otherPartyLabel = role === "FARMER" ? "Buyer" : "Farmer";
+          const otherPartyName = role === "FARMER"
+            ? (order.buyer?.name || order.buyer?.businessName || "Buyer")
+            : (order.farmer?.name || "Farmer");
+          const otherPartyPhone = role === "FARMER"
+            ? (order.buyer?.phone || "")
+            : (order.farmer?.phone || "");
+
+          const cleanDigits = otherPartyPhone.replace(/\D/g, "");
+          const waPhone = cleanDigits.length === 10 ? `91${cleanDigits}` : cleanDigits;
+          const itemsSummary = order.items?.map((item) => `${item.productName || "Product"} (${item.quantity} ${item.unit ?? "units"})`).join(", ") || "produce";
+          const waMessage = role === "BUYER"
+            ? `Hello ${otherPartyName}, I am contacting you regarding my order #${order.id.slice(0, 8)} (${itemsSummary}) on Vithu.`
+            : `Hello ${otherPartyName}, regarding your order #${order.id.slice(0, 8)} (${itemsSummary}) on Vithu.`;
+          const waUrl = waPhone ? `https://wa.me/${waPhone}?text=${encodeURIComponent(waMessage)}` : "";
+
+          return (
+            <article className="portal-order-card" key={order.id} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+              <div className="portal-order-head">
+                <div>
+                  <span className="portal-overline">Order #{order.id.slice(0, 8)}</span>
+                  <h2>{order.items?.map((item) => item.productName || item.productId).join(", ") || "Order details"}</h2>
+                </div>
+                <span className={`portal-status status-${order.status.toLowerCase()}`}>{order.status.toLowerCase()}</span>
+              </div>
+
+              {/* Farmer / Buyer Info Strip with Quick WhatsApp */}
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "12px",
+                  background: "#f7faf7",
+                  border: "1px solid #e1ede2",
+                  borderRadius: "10px",
+                  padding: "12px 16px",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <div
+                    style={{
+                      width: "36px",
+                      height: "36px",
+                      borderRadius: "50%",
+                      background: "#e8f5ec",
+                      color: "#0d6543",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontWeight: 700,
+                      fontSize: "14px",
+                    }}
+                  >
+                    {otherPartyName.slice(0, 1).toUpperCase()}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", color: "#60806e", letterSpacing: "0.3px" }}>
+                      {otherPartyLabel}
+                    </div>
+                    <div style={{ fontSize: "14px", fontWeight: 700, color: "#143c26" }}>
+                      {otherPartyName}
+                      {otherPartyPhone ? <span style={{ fontWeight: 500, fontSize: "12px", color: "#547360", marginLeft: "8px" }}>({otherPartyPhone})</span> : null}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Contact Buttons */}
+                {waPhone ? (
+                  <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
+                    <a
+                      href={waUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        background: "#25D366",
+                        color: "#fff",
+                        fontSize: "12.5px",
+                        fontWeight: 700,
+                        padding: "7px 14px",
+                        borderRadius: "8px",
+                        textDecoration: "none",
+                        boxShadow: "0 2px 6px rgba(37,211,102,0.25)",
+                      }}
+                    >
+                      <MessageCircle size={15} /> WhatsApp {otherPartyLabel}
+                    </a>
+                    <a
+                      href={`tel:${waPhone}`}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "5px",
+                        background: "#fff",
+                        border: "1px solid #c9ded0",
+                        color: "#18452e",
+                        fontSize: "12px",
+                        fontWeight: 600,
+                        padding: "7px 12px",
+                        borderRadius: "8px",
+                        textDecoration: "none",
+                      }}
+                    >
+                      <Phone size={14} /> Call
+                    </a>
+                  </div>
+                ) : null}
+              </div>
+
+              {/* Order Meta */}
+              <div className="portal-order-meta" style={{ marginTop: 0 }}>
+                <span>Placed: {order.createdAt ? new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "Date unavailable"}</span>
+                <span>Total: <strong>{money(order.totalAmount ?? order.total)}</strong></span>
+                {order.deliveryAddress ? <span>Delivery: {order.deliveryAddress}</span> : null}
+                {order.notes ? <span>Note: {order.notes}</span> : null}
+              </div>
+
+              {/* Items Breakdown */}
+              {order.items?.length ? (
+                <div className="portal-order-items" style={{ margin: "4px 0 0" }}>
+                  {order.items.map((item, index) => (
+                    <p key={item.id ?? index}>
+                      <strong>{item.quantity} {item.unit ?? "units"}</strong> · {item.productName ?? item.productId ?? "Product"}
+                      {item.unitPrice ? ` (@ ${money(item.unitPrice)} / ${item.unit ?? "unit"})` : ""}
+                    </p>
+                  ))}
+                </div>
+              ) : null}
+
+              {/* Actions */}
+              <div className="portal-card-actions">
+                {role === "FARMER" && order.status === "PENDING" && (
+                  <>
+                    <button disabled={update.isPending} onClick={() => update.mutate({ id: order.id, action: "CONFIRMED" })}>Accept</button>
+                    <button disabled={update.isPending} onClick={() => { if (window.confirm("Reject this order?")) update.mutate({ id: order.id, action: "REJECTED" }); }}>Reject</button>
+                  </>
+                )}
+                {role === "FARMER" && order.status === "CONFIRMED" && (
+                  <button disabled={update.isPending} onClick={() => update.mutate({ id: order.id, action: "COMPLETED" })}>Mark completed</button>
+                )}
+                {role === "BUYER" && order.status === "PENDING" && (
+                  <button disabled={update.isPending} onClick={() => { if (window.confirm("Cancel this order?")) update.mutate({ id: order.id, action: "cancel" }); }}>Cancel order</button>
+                )}
+              </div>
+            </article>
+          );
+        })}
+      </ViewState>
+    </div>
+  );
 }

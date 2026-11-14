@@ -65,6 +65,46 @@ async function getAdminToken(base: string): Promise<string | null> {
   return null;
 }
 
+let cachedAdminOrders: { map: Map<string, any>; expiresAt: number } | null = null;
+async function getAdminOrdersMap(base: string): Promise<Map<string, any>> {
+  if (cachedAdminOrders && Date.now() < cachedAdminOrders.expiresAt) {
+    return cachedAdminOrders.map;
+  }
+  const map = new Map<string, any>();
+  const adminToken = await getAdminToken(base);
+  if (!adminToken) return map;
+  try {
+    const res = await fetch(`${base}/admin/orders?limit=50`, {
+      headers: { Authorization: `Bearer ${adminToken}`, Accept: "application/json" },
+      cache: "no-store",
+    });
+    const json = await res.json();
+    const items = json.items || json.data?.items || (Array.isArray(json.data) ? json.data : []);
+    for (const item of items) {
+      if (item && item.id) {
+        map.set(item.id, {
+          farmer: {
+            id: item.farmer?.id,
+            name: item.farmer?.user?.name || item.farmer?.name || "Farmer",
+            phone: item.farmer?.user?.phone || item.farmer?.phone || "",
+            email: item.farmer?.user?.email || "",
+          },
+          buyer: {
+            id: item.buyer?.id,
+            name: item.buyer?.user?.name || item.buyer?.businessName || item.buyer?.name || "Buyer",
+            phone: item.buyer?.user?.phone || item.buyer?.phone || "",
+            email: item.buyer?.user?.email || "",
+          },
+        });
+      }
+    }
+    cachedAdminOrders = { map, expiresAt: Date.now() + 5000 };
+  } catch (err) {
+    console.error("Failed to fetch admin orders for enrichment:", err);
+  }
+  return map;
+}
+
 async function forward(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
   const { path } = await context.params;
   const endpoint = path.join("/");
@@ -117,6 +157,56 @@ async function forward(request: NextRequest, context: { params: Promise<{ path: 
           headers: retryHeaders,
           cache: "no-store",
         });
+      }
+    }
+
+    // Enrich orders/my with farmer and buyer details if missing
+    if (request.method === "GET" && (endpoint === "orders/my" || /^orders\/[\w-]+$/.test(endpoint)) && response.ok) {
+      try {
+        const rawText = await response.text();
+        const json = JSON.parse(rawText);
+        const map = await getAdminOrdersMap(base);
+
+        const list = Array.isArray(json.data)
+          ? json.data
+          : Array.isArray(json.items)
+          ? json.items
+          : Array.isArray(json)
+          ? json
+          : json.id
+          ? [json]
+          : [];
+
+        if (list.length > 0 && map.size > 0) {
+          for (const order of list) {
+            if (!order || !order.id) continue;
+            const extra = map.get(order.id);
+            if (extra) {
+              if (!order.farmer || !order.farmer.name) order.farmer = extra.farmer;
+              if (!order.buyer || !order.buyer.name) order.buyer = extra.buyer;
+            }
+          }
+
+          return new Response(JSON.stringify(json), {
+            status: response.status,
+            headers: {
+              "content-type": "application/json",
+              "cache-control": "no-store",
+              ...corsHeaders,
+            },
+          });
+        }
+
+        return new Response(rawText, {
+          status: response.status,
+          headers: {
+            "content-type": "application/json",
+            "cache-control": "no-store",
+            ...corsHeaders,
+          },
+        });
+      } catch {
+        // Fallback to normal response
       }
     }
 
