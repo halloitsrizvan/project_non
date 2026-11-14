@@ -16,6 +16,7 @@ type NavItem = { label: string; href: string; icon: LucideIcon };
 const navigation: Record<Role, NavItem[]> = {
   FARMER: [
     { label: "Overview", href: "/farmer/dashboard", icon: LayoutDashboard },
+    { label: "Market Demand", href: "/farmer/demand", icon: TrendingUp },
     { label: "My products", href: "/farmer/products", icon: Package },
     { label: "Orders", href: "/farmer/orders", icon: ClipboardList },
     { label: "Buyer Requests", href: "/farmer/buyers", icon: Users },
@@ -26,6 +27,7 @@ const navigation: Record<Role, NavItem[]> = {
   BUYER: [
     { label: "Overview", href: "/buyer/dashboard", icon: LayoutDashboard },
     { label: "Marketplace", href: "/buyer/marketplace", icon: Search },
+    { label: "Trending Produce", href: "/buyer/demand", icon: TrendingUp },
     { label: "Post requirement", href: "/buyer/requirements", icon: ClipboardPlus },
     { label: "Orders", href: "/buyer/orders", icon: ClipboardList },
     { label: "Wishlist", href: "/buyer/wishlist", icon: Heart },

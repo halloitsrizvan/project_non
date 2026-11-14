@@ -122,12 +122,21 @@ export async function getPage<T>(path: string): Promise<PageResult<T>> {
   const headers = new Headers({ Accept: "application/json" });
   if (accessToken) headers.set("Authorization", `Bearer ${accessToken}`);
   const response = await fetch(`/api/backend/${path.replace(/^\//, "")}`, { headers, cache: "no-store" });
-  const payload = await response.json() as Envelope<T[]> & { meta?: PageResult<T>["meta"] };
+  const payload = (await response.json()) as any;
   if (!response.ok || payload.success === false) {
     const detail = payload.message;
-    throw new ApiError(Array.isArray(detail) ? detail.join(". ") : detail || "Could not load products.", response.status);
+    throw new ApiError(Array.isArray(detail) ? detail.join(". ") : detail || "Could not load data.", response.status);
   }
-  return { items: Array.isArray(payload.data) ? payload.data : [], meta: payload.meta };
+  const data = payload.data ?? payload;
+  const items = Array.isArray(data?.items)
+    ? data.items
+    : Array.isArray(data)
+    ? data
+    : Array.isArray(payload?.items)
+    ? payload.items
+    : [];
+  const meta = data?.meta ?? payload?.meta;
+  return { items, meta };
 }
 
 export function roleHome(role: Role) {

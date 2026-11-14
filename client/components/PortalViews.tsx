@@ -32,7 +32,7 @@ export function FarmerDashboard() {
       </div>
       <div className="portal-two-col">
         <section className="portal-panel"><div className="portal-panel-head"><h2>Recent orders</h2><Link href="/farmer/orders">View all <ArrowRight size={16} /></Link></div><ViewState loading={orders.isPending} error={orders.error} empty={orders.data?.length ? undefined : "Orders from buyers will appear here."} retry={() => orders.refetch()}>{orders.data?.slice(0, 3).map((order) => <div className="portal-list-row" key={order.id}><span>Order #{order.id.slice(0, 8)}</span><strong>{order.status}</strong></div>)}</ViewState></section>
-        <section className="portal-panel"><div className="portal-panel-head"><h2>Quick actions</h2></div><div className="portal-quick-links"><Link href="/farmer/buyers">Browse buyer requirements <ArrowRight size={17} /></Link><Link href="/farmer/products/new">Add a product <ArrowRight size={17} /></Link><Link href="/farmer/products">View my products <ArrowRight size={17} /></Link><Link href="/farmer/schemes">Find government schemes <ArrowRight size={17} /></Link></div></section>
+        <section className="portal-panel"><div className="portal-panel-head"><h2>Quick actions</h2></div><div className="portal-quick-links"><Link href="/farmer/demand">Market Demand & Crop Timing (Seeds Guide) <ArrowRight size={17} /></Link><Link href="/farmer/buyers">Browse buyer requirements <ArrowRight size={17} /></Link><Link href="/farmer/products/new">Add a product <ArrowRight size={17} /></Link><Link href="/farmer/products">View my products <ArrowRight size={17} /></Link><Link href="/farmer/schemes">Find government schemes <ArrowRight size={17} /></Link></div></section>
       </div>
     </div>
   );
@@ -56,8 +56,8 @@ export function BuyerDashboard() {
         </ViewState>
       </section>
       <div className="portal-two-col">
-        <Link className="portal-promo" href="/buyer/marketplace">
-          <span><strong>Find what your business needs</strong><small>Browse fresh produce from local farmers.</small></span>
+        <Link className="portal-promo" href="/buyer/demand">
+          <span><strong>Trending & Peak Demand Produce</strong><small>See high-demand crops at prime harvesting quality.</small></span>
           <ArrowRight size={24} />
         </Link>
         <Link className="portal-promo" style={{ background: "#134e38" }} href="/buyer/requirements/new">

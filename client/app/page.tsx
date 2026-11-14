@@ -45,7 +45,7 @@ export default function Home() {
               <div><h2>Better prices for every harvest</h2><p>Reach buyers beyond your local market.</p><Link href="/register?role=farmer">LEARN MORE <span aria-hidden="true">↗</span></Link></div>
               <div className="hero-feature-image"><Image src="/images/farmer-harvest.png" alt="" fill sizes="80px" /></div>
             </article>
-            <p className="hero-feature-message">Transforming <em>Agriculture</em><br />with Smart Solutions for a<br /><em>Sustainable Future</em></p>
+            <p className="hero-feature-message">Transforming <em>agriculture</em><br />with smarter connections<br />for a better future.</p>
             <article className="hero-feature-card hero-feature-card-right">
               <div><h2>Fresh supply, closer to you</h2><p>Browse available produce near you.</p><Link href="/register?role=buyer">LEARN MORE <span aria-hidden="true">↗</span></Link></div>
               <div className="hero-feature-image"><Image src="/images/hero-crop-rows.png" alt="" fill sizes="80px" /></div>
