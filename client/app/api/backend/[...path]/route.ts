@@ -22,16 +22,29 @@ const rules: Record<string, RegExp[]> = {
   ],
 };
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PATCH, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept, X-Requested-With",
+};
+
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 204,
+    headers: corsHeaders,
+  });
+}
+
 async function forward(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
   const { path } = await context.params;
   const endpoint = path.join("/");
   if (!rules[request.method]?.some((rule) => rule.test(endpoint))) {
-    return Response.json({ success: false, message: "Endpoint unavailable." }, { status: 404 });
+    return Response.json({ success: false, message: "Endpoint unavailable." }, { status: 404, headers: corsHeaders });
   }
 
   const base = process.env.API_BASE_URL?.replace(/\/$/, "");
   if (!base) {
-    return Response.json({ success: false, message: "API_BASE_URL is not configured." }, { status: 503 });
+    return Response.json({ success: false, message: "API_BASE_URL is not configured." }, { status: 503, headers: corsHeaders });
   }
 
   const target = `${base}/${endpoint}${new URL(request.url).search}`;
@@ -56,12 +69,13 @@ async function forward(request: NextRequest, context: { params: Promise<{ path: 
       headers: {
         "content-type": response.headers.get("content-type") ?? "application/json",
         "cache-control": "no-store",
+        ...corsHeaders,
       },
     });
   } catch {
     return Response.json(
       { success: false, message: "The backend is unavailable. Please try again." },
-      { status: 502 },
+      { status: 502, headers: corsHeaders },
     );
   }
 }

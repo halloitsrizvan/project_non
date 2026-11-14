@@ -45,7 +45,7 @@ export default function Home() {
               <div><h2>Better prices for every harvest</h2><p>Reach buyers beyond your local market.</p><Link href="/register?role=farmer">LEARN MORE <span aria-hidden="true">↗</span></Link></div>
               <div className="hero-feature-image"><Image src="/images/farmer-harvest.png" alt="" fill sizes="80px" /></div>
             </article>
-            <p className="hero-feature-message">Transforming <em>agriculture</em><br />with smarter connections<br />for a better future.</p>
+            <p className="hero-feature-message">Transforming <em>Agriculture</em><br />with Smart Solutions for a<br /><em>Sustainable Future</em></p>
             <article className="hero-feature-card hero-feature-card-right">
               <div><h2>Fresh supply, closer to you</h2><p>Browse available produce near you.</p><Link href="/register?role=buyer">LEARN MORE <span aria-hidden="true">↗</span></Link></div>
               <div className="hero-feature-image"><Image src="/images/hero-crop-rows.png" alt="" fill sizes="80px" /></div>
@@ -76,7 +76,7 @@ export default function Home() {
           <section className="final-cta" aria-labelledby="final-title"><p className="eyebrow eyebrow-light">Let&apos;s grow together</p><h2 id="final-title">A fresh start for<br />every harvest.</h2><p>Whether you grow food or buy it for your business, there is a place for you here.</p><Link className="button button-lime" href="/register">Get started <span aria-hidden="true">↗</span></Link></section>
         </main>
 
-        <footer className="site-footer"><div><Brand /><p>Connecting good harvests with good opportunities.</p></div><div className="footer-links"><a href="#how-it-works">How it works</a><a href="#farmers">For farmers</a><a href="#buyers">For buyers</a><Link href="/login">Log in</Link></div><div className="footer-bottom"><span>© 2026 vithu. All rights reserved.</span><span>Made for every harvest.</span></div></footer>
+        <footer className="site-footer"><div><Brand /><p>Connecting good harvests with good opportunities.</p></div><div className="footer-links"><a href="#how-it-works">How it works</a><a href="#farmers">For farmers</a><a href="#buyers">For buyers</a><Link href="/login">Log in</Link><Link href="/register" style={{ fontWeight: 800, color: "var(--forest)" }}>Sign up</Link></div><div className="footer-bottom"><span>© 2026 vithu. All rights reserved.</span><span>Made for every harvest.</span></div></footer>
       </div>
     </div>
   );

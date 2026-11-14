@@ -10,7 +10,7 @@ import { z } from "zod";
 import { roleHome, useAuth } from "@/lib/auth";
 
 const schema = z.object({
-  phone: z.string().trim().regex(/^\+?[1-9]\d{7,14}$/, "Enter your registered phone number."),
+  identifier: z.string().trim().min(1, "Enter your email or registered phone number."),
   password: z.string().min(1, "Enter your password."),
 });
 type FormValues = z.infer<typeof schema>;
@@ -26,7 +26,7 @@ export default function LoginPage() {
   async function submit(values: FormValues) {
     setServerError("");
     try {
-      const user = await login(values.phone, values.password);
+      const user = await login(values.identifier, values.password);
       router.replace(roleHome(user.role));
     } catch (error) {
       setServerError(error instanceof Error ? error.message : "Could not log in. Please try again.");
@@ -49,9 +49,15 @@ export default function LoginPage() {
           <h2>Log in to vithu.</h2>
           <p>Enter your details to continue.</p>
           <form className="auth-form" onSubmit={handleSubmit(submit)}>
-            <label>Phone number
-              <input type="tel" inputMode="tel" autoComplete="tel" placeholder="Your registered phone number" aria-invalid={!!errors.phone} {...register("phone")} />
-              {errors.phone && <small className="field-error">{errors.phone.message}</small>}
+            <label>Email or phone number
+              <input
+                type="text"
+                autoComplete="username"
+                placeholder="e.g. gov.admin@vithu.kerala.gov.in or phone"
+                aria-invalid={!!errors.identifier}
+                {...register("identifier")}
+              />
+              {errors.identifier && <small className="field-error">{errors.identifier.message}</small>}
             </label>
             <label>Password
               <input type="password" autoComplete="current-password" placeholder="Your password" aria-invalid={!!errors.password} {...register("password")} />

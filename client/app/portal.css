@@ -24,7 +24,8 @@
 .portal-wishlist-toggle:hover{transform:scale(1.12);background:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.14)}
 .portal-wishlist-toggle.active{background:#fff5f5;border-color:#feb2b2}
 
-.portal-req-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:18px}
+.portal-req-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:18px}
+@media(max-width:550px){.portal-req-grid{grid-template-columns:1fr}.portal-req-card{padding:16px}.portal-req-meta-row{grid-template-columns:1fr;gap:8px}.portal-modal{padding:20px 18px;max-width:94vw}.portal-tab-bar{overflow-x:auto;white-space:nowrap;padding-bottom:6px}.portal-filter-bar{grid-template-columns:1fr}}
 .portal-req-card{background:#fff;border:1px solid #e1e9df;border-radius:14px;padding:22px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 4px 14px rgba(18,54,42,0.04);transition:transform .15s ease,box-shadow .15s ease}
 .portal-req-card:hover{box-shadow:0 6px 20px rgba(18,54,42,0.08)}
 .portal-req-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
